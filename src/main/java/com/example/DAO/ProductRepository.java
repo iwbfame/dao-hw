@@ -1,35 +1,35 @@
 package com.example.DAO;
 
-import org.springframework.beans.factory.annotation.Autowired;
+
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
-import org.springframework.core.io.ClassPathResource;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
 @Repository
 public class ProductRepository {
 
-    private final NamedParameterJdbcTemplate jdbcTemplate;
-    private final String fetchProductNameScript;
+    private final NamedParameterJdbcTemplate namedParameterJdbcTemplate;
+    private final String fetchProductScript;
 
-    @Autowired
-    public ProductRepository(NamedParameterJdbcTemplate jdbcTemplate) {
-        this.jdbcTemplate = jdbcTemplate;
-        this.fetchProductNameScript = read("fetch_product_name.sql");
+    public ProductRepository(NamedParameterJdbcTemplate namedParameterJdbcTemplate,
+                             @Value("classpath:fetchProduct.sql") String fetchProductScript) {
+        this.namedParameterJdbcTemplate = namedParameterJdbcTemplate;
+        this.fetchProductScript = read(fetchProductScript);
     }
 
-    public String getProductName(String name) {
-        Map<String, Object> params = new HashMap<>();
-        params.put("name", name);
-
-        return jdbcTemplate.queryForObject(fetchProductNameScript, params, String.class);
+    public List<String> getProductNames(String name) {
+        String sql = fetchProductScript;
+        Map<String, Object> params = Map.of("name", name);
+        return namedParameterJdbcTemplate.queryForList(sql, params, String.class);
     }
 
     private static String read(String scriptFileName) {
@@ -41,3 +41,4 @@ public class ProductRepository {
         }
     }
 }
+

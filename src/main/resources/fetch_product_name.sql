@@ -1,4 +1,3 @@
-SELECT o.product_name
-FROM ORDERS o
-JOIN CUSTOMERS c ON o.customer_id = c.id
-WHERE LOWER(c.name) = LOWER(:name);
+SELECT product_name
+FROM ORDERS
+WHERE customer_id = (SELECT id FROM CUSTOMERS WHERE LOWER(name) = LOWER(:name));
